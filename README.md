@@ -417,4 +417,15 @@ Bilateral distance matrix saved to: output/distance_matrix.csv
 Processed data saved to 'output' as 'grid-data.shp' and 'centroids-data.shp'
 ```
 
+---
+
+## Example Outputs
+
+Below are examples of grids generated using the **GRID-toolkit**.
+
+### Square Grid
+![Example of square grid](Example_square.png)
+
+### Hexagonal Grid
+![Example of hexagonal grid](Example_hexagon.png)
 
