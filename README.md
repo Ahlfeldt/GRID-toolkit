@@ -291,7 +291,7 @@ Example confirmation message after successful execution:
 
 ### Description
 
-`GRID-data.py` enriches a previously generated grid (square or hexagonal) with spatial data from user-provided shapefiles and produces a complete dataset suitable for input into **AABPL-toolkit** and **MRRH-toolkit** workflows.  
+`GRID-data.py` enriches a previously generated grid (square or hexagonal) with spatial data from user-provided shapefiles and produces a complete dataset suitable for input into the **MRRH-toolkit**.  
 
 The script performs spatial joins between the grid and input layers, computes aggregated statistics, assigns population and employment levels consistent with a user-defined total number of workers, and generates synthetic variables for wages and rents.  
 It also produces a **bilateral distance matrix** in meters to support spatial general equilibrium modeling.
