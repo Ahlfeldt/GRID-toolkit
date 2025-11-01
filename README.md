@@ -12,7 +12,7 @@ The **GRID-toolkit** provides a set of Python scripts that allow users to genera
 The toolkit is designed to work as a modular component within a broader ecosystem of spatial analysis tools, offering **seamless integration** with the following companion toolkits:
 
 - **[AABPL-toolkit](https://github.com/Ahlfeldt/AABPL-toolkit)** — provides global city-level grids with employment and population data.  
-- **[MRRH-toolkit](https://github.com/Ahlfeldt/MRRH-toolkit)** — implements general equilibrium spatial counterfactuals based on grid-level data.
+- **[MRRH2018-toolkit](https://github.com/Ahlfeldt/MRRH2018-toolkit)** — implements general equilibrium spatial counterfactuals based on grid-level data.
 
 Notice that the merge is based on a spatial join. It does not use areal interpolation techniques. This works well and fast when the input spatial units are small, such as the grid cells from the **[AABPL-toolkit](https://github.com/Ahlfeldt/AABPL-toolkit)**. With much larger spatial units in the input shapefiles, an areal interpolation-based procedure will is advised.
 
