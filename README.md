@@ -287,3 +287,134 @@ Example confirmation message after successful execution:
 ```
 ✅ Hex grid saved with ~30 cols × ~28 rows (150×150 km)
 ```
+## GRID-data.py
+
+### Description
+
+`GRID-data.py` enriches a previously generated grid (square or hexagonal) with spatial data from user-provided shapefiles and produces a complete dataset suitable for input into **AABPL-toolkit** and **MRRH-toolkit** workflows.  
+
+The script performs spatial joins between the grid and input layers, computes aggregated statistics, assigns population and employment levels consistent with a user-defined total number of workers, and generates synthetic variables for wages and rents.  
+It also produces a **bilateral distance matrix** in meters to support spatial general equilibrium modeling.
+
+---
+
+### How it works
+
+1. **User settings:**  
+   In the **USER SETTINGS BLOCK**, the user specifies input/output paths, variable names, and key parameters:
+   - `INPUT_FOLDER` — folder containing one or more shapefiles with data to intersect with the grid  
+   - `GRID_SHAPE_PATH` — path to the grid shapefile (typically from `GRID-gen.py` or `HEX-gen.py`)  
+   - `CENTROID_PATH` — path to the centroids shapefile  
+   - `OUTPUT_FOLDER` — folder where processed files will be saved  
+   - `OUTPUT_GRID_NAME` — name of the enriched grid shapefile  
+   - `OUTPUT_CENTROID_NAME` — name of the enriched centroid shapefile  
+   - `TOTAL_WORKERS` — total number of workers in the modeled economy (used to scale employment and population)  
+   - `POP_DENSITY_VAR` — column name for population-related data in the input shapefile  
+   - `EMPLOYMENT_VAR` — column name for employment-related data in the input shapefile  
+
+2. **Input loading:**  
+   All shapefiles located in the `INPUT_FOLDER` are automatically loaded and merged into a single GeoDataFrame.  
+   These may come from the **AABPL-toolkit** or any other spatial data source.
+
+3. **Grid loading and CRS alignment:**  
+   The grid and centroid shapefiles are read, and the coordinate reference systems (CRS) of all layers are harmonized to ensure correct spatial intersection.
+
+4. **Spatial join:**  
+   A spatial join (`intersects` predicate) assigns grid cell IDs to the overlapping features in the merged input shapefile.  
+   This allows the script to compute cell-level averages for all numeric variables.
+
+5. **Aggregation:**  
+   For each grid cell (`cell_id`), the script computes the mean of all numeric variables from the intersected data.
+
+6. **Merging results:**  
+   The aggregated statistics are merged back into both the polygon (`grid_out`) and centroid (`centroid_out`) GeoDataFrames.
+
+7. **Cleaning and filtering:**  
+   - Missing numeric values are replaced with zeros.  
+   - Only grid cells with positive population, employment, or development (`devle`) values are retained.  
+   - Cells with zeros in key variables are replaced by the minimum positive value to avoid null shares.
+
+8. **Population and employment scaling:**  
+   The script normalizes the population and employment shares across all grid cells so that their sum equals the specified `TOTAL_WORKERS`.  
+   This yields realistic magnitudes for downstream modeling.
+
+9. **Synthetic variable generation:**  
+   - **Wage:** proportional to employment levels (elasticity 0.05) plus random noise.  
+   - **Rent:** proportional to population levels (elasticity 0.25) plus random noise.  
+   Both are normalized to have a mean of 1.
+
+10. **Output creation:**  
+    Final attributes retained for each grid cell and centroid include:
+    - `cell_id`, `lat`, `lon`, `pop`, `emp`, `wage`, `rent`, and geometry.  
+    These are saved as:
+    ```
+    output/grid-data.shp
+    output/centroids-data.shp
+    output/grid-data.csv
+    output/centroids-data.csv
+    ```
+
+11. **Distance matrix computation:**  
+    A bilateral distance matrix between all centroids is generated in meters using the **Euclidean distance**.  
+    - Diagonal entries (within-cell distances) are replaced with one-third of the equivalent circle radius derived from each grid cell’s area.  
+    - The result is saved as:
+      ```
+      output/distance_matrix.csv
+      ```
+
+---
+
+### What the user should specify
+
+Edit the **USER SETTINGS BLOCK** at the top of the script before running:
+
+```python
+# =============================
+# USER SETTINGS BLOCK
+# =============================
+INPUT_FOLDER = "input"                    # Folder with input shapefiles
+GRID_SHAPE_PATH = "output/grid.shp"       # Path to grid polygons
+CENTROID_PATH = "output/centroids.shp"    # Path to centroids
+OUTPUT_FOLDER = "output"                  # Output directory
+OUTPUT_GRID_NAME = "grid-data.shp"        # Output file name for grid
+OUTPUT_CENTROID_NAME = "centroids-data.shp" # Output file name for centroids
+TOTAL_WORKERS = 10_000_000                # Total number of workers in the economy
+
+# User-defined variable names (must exist in input shapefiles)
+POP_DENSITY_VAR = "pop_sh"                # Population variable
+EMPLOYMENT_VAR = "emp_sh"                 # Employment variable
+```
+
+- The **input shapefiles** should contain columns for population and employment shares or densities.  
+- The **grid shapefile** must include a `cell_id` field.  
+- Adjust `TOTAL_WORKERS` to reflect the scale of the modeled economy.
+
+---
+
+### Output files
+
+| File | Description |
+|------|--------------|
+| `grid-data.shp` | Enriched polygon layer of grid cells with population, employment, wage, and rent. |
+| `centroids-data.shp` | Enriched point layer of centroids with the same attributes. |
+| `grid-data.csv` | Attribute-only version of `grid-data.shp`. |
+| `centroids-data.csv` | Attribute-only version of `centroids-data.shp`. |
+| `distance_matrix.csv` | Pairwise centroid distance matrix (in meters) with internal distances on the diagonal. |
+
+---
+
+### Notes
+
+- The script installs missing dependencies automatically (`geopandas`, `pandas`, `shapely`).  
+- It expects all spatial layers to overlap the grid area for meaningful intersections.  
+- The **distance matrix** can be used directly in general equilibrium simulations (e.g., with the **MRRH-toolkit**).  
+- Synthetic wage and rent variables are illustrative; users can replace them with empirically estimated data if available.  
+
+Example console output:
+```
+Shapefiles and CSVs saved to: output
+Bilateral distance matrix saved to: output/distance_matrix.csv
+Processed data saved to 'output' as 'grid-data.shp' and 'centroids-data.shp'
+```
+
+
