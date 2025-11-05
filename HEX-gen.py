@@ -3,7 +3,7 @@
 # =============================
 GRID_WIDTH_KM = 150     # Total grid width in kilometers
 GRID_HEIGHT_KM = 150    # Total grid height in kilometers
-HEX_WIDTH_KM = 5        # Width of each hexagon (flat-topped)
+HEX_WIDTH_KM = 2        # Width of each hexagon (flat-topped)
 CENTROID_LAT = 37.558724 # Use 51.5 for London
 CENTROID_LON = -122.155537 # USe 0 for London
 OUTPUT_FOLDER = "output"

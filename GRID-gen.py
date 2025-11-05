@@ -1,8 +1,8 @@
 # =============================
 # USER SETTINGS BLOCK
 # =============================
-NUM_ROWS = 50
-NUM_COLS = 50
+NUM_ROWS = 100
+NUM_COLS = 100
 CELL_SIZE_KM = 2
 CENTROID_LAT = 37.558724 # Use 51.5 for London
 CENTROID_LON = -122.155537 # USe 0 for London
